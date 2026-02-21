@@ -13,8 +13,7 @@ public class BalanceController {
     private final UserRepository userRepository;
 
     public boolean findUser(long senderId) {
-        if (userRepository.existsById(senderId)) return true;
-        else return false;
+        return userRepository.existsById(senderId);
     }
 
     public Balance getBalanceById(long userId){

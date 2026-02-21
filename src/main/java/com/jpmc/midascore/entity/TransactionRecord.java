@@ -1,6 +1,5 @@
 package com.jpmc.midascore.entity;
 
-import com.jpmc.midascore.foundation.Transaction;
 import jakarta.persistence.*;
 
 @Entity
@@ -32,4 +31,5 @@ public class TransactionRecord {
     public UserRecord getSenderId(){return this.senderId;}
     public UserRecord getRecipientId(){return this.recipientId;}
     public float getAmount(){return this.amount;}
+    public float getIncentive(){return this.incentive;}
 }

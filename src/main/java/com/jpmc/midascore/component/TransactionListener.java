@@ -15,7 +15,6 @@ public class TransactionListener {
     private final UserRepository userRepository;
     private final TransactionRecordRepository transactionRecordRepository;
     private final IncentiveClient incentiveService;
-    private long waldorfId = -1;
 
     public TransactionListener(UserRepository userRepository, TransactionRecordRepository transactionRecordRepository,IncentiveClient incentiveClient){
         this.userRepository = userRepository;
@@ -24,32 +23,21 @@ public class TransactionListener {
     }
 
     public boolean findUser(long senderId) {
-        if (userRepository.existsById(senderId)) return true;
-        else return false;
+        return userRepository.existsById(senderId);
     }
 
     private UserRecord getUserById(long Id){
-        UserRecord user = userRepository.findById(Id);
-        if(user.getName().equals("wilbur")) {
-            waldorfId = user.getId();
-//            System.out.println("Here");
-//            System.out.println(waldorfId);
-        }
-
-
-        return user;
+        return userRepository.findById(Id);
     }
 
     public boolean checkSendersBalance(long senderId, float amount){
         UserRecord user = this.getUserById(senderId);
-        if(user.getBalance() >= amount) return true;
-        else return false;
+        return user.getBalance() >= amount;
     }
     public void updateUserAmount(long userId, float amount){
         UserRecord user = this.getUserById(userId);
         user.setBalance(user.getBalance() + amount);
         userRepository.save(user);
-        return;
     }
 
     @KafkaListener(id="listerner", topics = "${general.kafka-topic}")
@@ -66,8 +54,5 @@ public class TransactionListener {
             updateUserAmount(transaction.getSenderId(), -1 * transaction.getAmount());
 
         }
-
-        return;
-
     }
 }
