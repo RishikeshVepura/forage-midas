@@ -19,10 +19,14 @@ public class TransactionRecord {
     @Column(nullable = false)
     private float amount;
 
-    public TransactionRecord(UserRecord senderId,UserRecord recipientId, float amount){
+    @Column(nullable = false)
+    private float incentive;
+
+    public TransactionRecord(UserRecord senderId,UserRecord recipientId, float amount,float incentive){
         this.senderId = senderId;
         this.recipientId = recipientId;
         this.amount = amount;
+        this.incentive = incentive;
     }
 
     public UserRecord getSenderId(){return this.senderId;}

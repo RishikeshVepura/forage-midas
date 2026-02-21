@@ -1,5 +1,7 @@
 package com.jpmc.midascore.component;
 
+import com.jpmc.midascore.client.IncentiveClient;
+import com.jpmc.midascore.dto.IncentiveResponse;
 import com.jpmc.midascore.entity.TransactionRecord;
 import com.jpmc.midascore.entity.UserRecord;
 import com.jpmc.midascore.foundation.Transaction;
@@ -12,11 +14,13 @@ import org.springframework.stereotype.Component;
 public class TransactionListener {
     private final UserRepository userRepository;
     private final TransactionRecordRepository transactionRecordRepository;
+    private final IncentiveClient incentiveService;
     private long waldorfId = -1;
 
-    public TransactionListener(UserRepository userRepository, TransactionRecordRepository transactionRecordRepository){
+    public TransactionListener(UserRepository userRepository, TransactionRecordRepository transactionRecordRepository,IncentiveClient incentiveClient){
         this.userRepository = userRepository;
         this.transactionRecordRepository = transactionRecordRepository;
+        this.incentiveService = incentiveClient;
     }
 
     public boolean findUser(long senderId) {
@@ -26,7 +30,7 @@ public class TransactionListener {
 
     private UserRecord getUserById(long Id){
         UserRecord user = userRepository.findById(Id);
-        if(user.getName().equals("waldorf")) {
+        if(user.getName().equals("wilbur")) {
             waldorfId = user.getId();
 //            System.out.println("Here");
 //            System.out.println(waldorfId);
@@ -54,13 +58,13 @@ public class TransactionListener {
         if(!findUser(transaction.getSenderId())) return;
         if(!findUser(transaction.getRecipientId())) return;
         if(checkSendersBalance(transaction.getSenderId(),transaction.getAmount())) {
-            TransactionRecord transactionRecord = new TransactionRecord(this.getUserById(transaction.getSenderId()), this.getUserById(transaction.getRecipientId()), transaction.getAmount());
+            IncentiveResponse incentive = this.incentiveService.fetchIncentiveResponse(transaction);
+            updateUserAmount(transaction.getRecipientId(), incentive.amount());
+            TransactionRecord transactionRecord = new TransactionRecord(this.getUserById(transaction.getSenderId()), this.getUserById(transaction.getRecipientId()), transaction.getAmount(), incentive.amount());
             transactionRecordRepository.save(transactionRecord);
             updateUserAmount(transaction.getRecipientId(), transaction.getAmount());
             updateUserAmount(transaction.getSenderId(), -1 * transaction.getAmount());
-        }
-        if(waldorfId!=-1){
-            System.out.println(getUserById(waldorfId).getBalance());
+
         }
 
         return;
